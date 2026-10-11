@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import crypto from "node:crypto";
+import path from "node:path";
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
@@ -532,6 +533,13 @@ app.post("/api/calls/:id/push-to-airtable", async (req, res) => {
   } catch (error) {
     res.status(error.status || 500).json({ error: error.message });
   }
+});
+
+const publicDir = path.join(process.cwd(), "public");
+app.use(express.static(publicDir));
+app.use((req, res) => {
+  if (req.path.startsWith("/api")) return res.status(404).json({ error: "Not found" });
+  res.sendFile(path.join(publicDir, "index.html"));
 });
 
 app.listen(port, () => {
